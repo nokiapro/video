@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Video XuanKen</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Grid danh sách video */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .video-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .video-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.5);
+            border-color: #ff6b6b;
+        }
+
+        .thumbnail {
+            position: relative;
+            padding-top: 56.25%;
+            background: #000;
+        }
+
+        .thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 107, 107, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .video-card:hover .play-icon {
+            opacity: 1;
+        }
+
+        .play-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .video-info {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .video-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .video-stats {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+
+        /* Modal đơn giản */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header h2 {
+            font-size: 1.2rem;
+            margin-left: 1rem;
+            color: white;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0 1rem;
+        }
+
+        .close-btn:hover {
+            color: #ff6b6b;
+        }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            padding-bottom: 56.25%;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Phân trang */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            background: rgba(255, 107, 107, 0.5);
+            border-color: #ff6b6b;
+        }
+
+        .page-btn.active {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+
+        .page-nav {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0 1rem;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .page-nav:hover {
+            background: rgba(255, 107, 107, 0.5);
+            border-color: #ff6b6b;
+        }
+
+        .page-nav.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 XuanKen Videos</h1>
+        <p>Tuyển tập những ca khúc hay nhất</p>
+    </div>
+
+    <div class="container">
+        <div class="video-stats">
+            <i class="fas fa-music"></i> Tổng số: <span id="totalVideos">0</span> video
+        </div>
+        
+        <div class="video-grid" id="videoGrid"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Modal xem video -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Tiêu đề video</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="video-container">
+                <div class="video-wrapper" id="videoWrapper">
+                    <!-- Iframe sẽ được thêm vào đây -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>✨ Cảm ơn bạn đã ghé thăm!</p>
+    </div>
+
+    <script>
+        // Dữ liệu video XuanKen - THAY YOUTUBE ID THẬT VÀO ĐÂY
+        const allVideos = [
+            {
+                id: 1,
+                title: "Ngày Em Vu Quy - XuanKen",
+                youtubeId: "dQw4w9WgXcQ", // THAY ID NÀY
+                thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg",
+            },
+            {
+                id: 2,
+                title: "Thất Tinh & Lâm Bạn Anh Nhé - XuanKen",
+                youtubeId: "dQw4w9WgXcQ", // THAY ID NÀY
+                thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg",
+            },
+            {
+                id: 3,
+                title: "Người Ô Lại Trọng Tim - XuanKen",
+                youtubeId: "dQw4w9WgXcQ", // THAY ID NÀY
+                thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg",
+            },
+            {
+                id: 4,
+                title: "Để Em Bên Người Khác - XuanKen",
+                youtubeId: "dQw4w9WgXcQ", // THAY ID NÀY
+                thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg",
+            }
+        ];
+
+        const ITEMS_PER_PAGE = 6;
+        let currentPage = 1;
+        
+        // Modal elements
+        const modal = document.getElementById('videoModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const videoWrapper = document.getElementById('videoWrapper');
+        const closeBtn = document.getElementById('closeModal');
+
+        // Đóng modal
+        function closeModal() {
+            modal.classList.remove('active');
+            videoWrapper.innerHTML = '';
+        }
+
+        // Mở modal với link YouTube
+        function openModal(video) {
+            modalTitle.innerText = video.title;
+            
+            // Tạo iframe với link nhúng cơ bản nhất
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1`;
+            iframe.allowFullscreen = true;
+            
+            videoWrapper.innerHTML = '';
+            videoWrapper.appendChild(iframe);
+            
+            modal.classList.add('active');
+        }
+
+        // Cập nhật tổng số video
+        function updateTotalVideos() {
+            document.getElementById('totalVideos').innerText = allVideos.length;
+        }
+
+        // Hiển thị video theo trang
+        function renderPage(page) {
+            const start = (page - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageVideos = allVideos.slice(start, end);
+            const totalPages = Math.ceil(allVideos.length / ITEMS_PER_PAGE);
+
+            const gridContainer = document.getElementById('videoGrid');
+            gridContainer.innerHTML = '';
+
+            pageVideos.forEach(video => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                
+                card.innerHTML = `
+                    <div class="thumbnail">
+                        <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
+                        <div class="play-icon">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>${video.title}</h3>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => openModal(video));
+                gridContainer.appendChild(card);
+            });
+
+            renderPagination(page, totalPages);
+        }
+
+        // Vẽ phân trang
+        function renderPagination(current, total) {
+            const paginationEl = document.getElementById('pagination');
+            paginationEl.innerHTML = '';
+
+            // Nút Previous
+            const prevBtn = document.createElement('span');
+            prevBtn.className = `page-nav ${current === 1 ? 'disabled' : ''}`;
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Trước';
+            if (current > 1) {
+                prevBtn.addEventListener('click', () => {
+                    currentPage--;
+                    renderPage(currentPage);
+                });
+            }
+            paginationEl.appendChild(prevBtn);
+
+            // Các nút số trang
+            for (let i = 1; i <= total; i++) {
+                if (i === 1 || i === total || (i >= current - 1 && i <= current + 1)) {
+                    const btn = document.createElement('span');
+                    btn.className = `page-btn ${i === current ? 'active' : ''}`;
+                    btn.innerText = i;
+                    btn.addEventListener('click', () => {
+                        currentPage = i;
+                        renderPage(currentPage);
+                    });
+                    paginationEl.appendChild(btn);
+                } else if (i === current - 2 || i === current + 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'page-btn disabled';
+                    dots.innerText = '...';
+                    paginationEl.appendChild(dots);
+                }
+            }
+
+            // Nút Next
+            const nextBtn = document.createElement('span');
+            nextBtn.className = `page-nav ${current === total ? 'disabled' : ''}`;
+            nextBtn.innerHTML = 'Sau <i class="fas fa-chevron-right"></i>';
+            if (current < total) {
+                nextBtn.addEventListener('click', () => {
+                    currentPage++;
+                    renderPage(currentPage);
+                });
+            }
+            paginationEl.appendChild(nextBtn);
+        }
+
+        // Sự kiện modal
+        closeBtn.addEventListener('click', closeModal);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Khởi tạo
+        window.onload = function() {
+            updateTotalVideos();
+            renderPage(1);
+        };
+    </script>
+</body>
+</html>
