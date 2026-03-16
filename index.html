@@ -68,6 +68,7 @@
             text-decoration: none;
             color: white;
             display: block;
+            position: relative;
         }
 
         .grid-item:hover {
@@ -145,6 +146,48 @@
             
             /* Font size co giãn */
             font-size: clamp(0.9rem, 3vw, 1.2rem);
+        }
+
+        /* Badge cho video mới */
+        .new-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .new-badge i {
+            font-size: 0.7rem;
+        }
+
+        /* Date info */
+        .date-info {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #9ca3af;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            z-index: 2;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .date-info i {
+            margin-right: 0.2rem;
+            color: #60a5fa;
         }
 
         /* Responsive cho màn hình nhỏ */
@@ -430,6 +473,9 @@
     <div class="video-grid-container">
         <div class="video-stats">
             <i class="fas fa-video"></i> Tổng số: <span id="totalVideos">0</span> video
+            <span style="margin-left: 1rem; color: #60a5fa;">
+                <i class="fas fa-clock"></i> Mới nhất đầu tiên
+            </span>
         </div>
         <div class="video-grid" id="videoGrid"></div>
         <div class="pagination" id="pagination"></div>
@@ -460,46 +506,82 @@
 
     <script>
         (function() {
-            // ==================== DỮ LIỆU VIDEO ====================
+            // ==================== DỮ LIỆU VIDEO VỚI NGÀY THÁNG ====================
+            // Format: YYYY-MM-DD (năm-tháng-ngày)
             const allVideos = [
-                // Video XuanKen
+                // Video mới nhất
                 {
-                    id: 1,
-                    title: "Ngày Em Vu Quy - XuanKen",
-                    youtubeId: "agU2wa-9JS0", // Thay bằng ID thật
-                    thumbnail: "https://img.youtube.com/vi/agU2wa-9JS0/maxresdefault.jpg",
-                },
-                {
-                    id: 2,
-                    title: "Thất Tình & Làm Bạn Anh Nhé - XuanKen",
-                    youtubeId: "gAmCQjWEY6I", // Thay bằng ID thật
-                    thumbnail: "https://img.youtube.com/vi/gAmCQjWEY6I/maxresdefault.jpg",
-                },
-                {
-                    id: 3,
-                    title: "Quên Nhau Đi Nhé - XuanKen",
-                    youtubeId: "aNRASCkuS5Q", // Thay bằng ID thật
-                    thumbnail: "https://img.youtube.com/vi/aNRASCkuS5Q/maxresdefault.jpg",
-                },
-                {
-                    id: 4,
-                    title: "Ánh Mắt Em - XuanKen",
-                    youtubeId: "RQpv_-rgFPI", // Thay bằng ID thật
-                    thumbnail: "https://img.youtube.com/vi/RQpv_-rgFPI/maxresdefault.jpg",
+                    id: 6,
+                    title: "Người Ở Lại Trong Tim - XuanKen",
+                    youtubeId: "aPUytokiU7o",
+                    thumbnail: "https://img.youtube.com/vi/aPUytokiU7o/maxresdefault.jpg",
+                    date: "2026-03-15",
                 },
                 {
                     id: 5,
                     title: "Để Em Bên Người Khác - XuanKen",
-                    youtubeId: "5q4ScsHNjTI", // Thay bằng ID thật
+                    youtubeId: "5q4ScsHNjTI",
                     thumbnail: "https://img.youtube.com/vi/5q4ScsHNjTI/maxresdefault.jpg",
+                    date: "2026-03-13",
                 },
                 {
-                    id: 6,
-                    title: "Người Ở Lại Trong Tim - XuanKen",
-                    youtubeId: "aPUytokiU7o", // Thay bằng ID thật
-                    thumbnail: "https://img.youtube.com/vi/aPUytokiU7o/maxresdefault.jpg",
+                    id: 4,
+                    title: "Ánh Mắt Em - XuanKen",
+                    youtubeId: "RQpv_-rgFPI",
+                    thumbnail: "https://img.youtube.com/vi/RQpv_-rgFPI/maxresdefault.jpg",
+                    date: "2026-03-11",
+                },
+                {
+                    id: 3,
+                    title: "Quên Nhau Đi Nhé - XuanKen",
+                    youtubeId: "aNRASCkuS5Q",
+                    thumbnail: "https://img.youtube.com/vi/aNRASCkuS5Q/maxresdefault.jpg",
+                    date: "2026-03-09",
+                },
+                {
+                    id: 2,
+                    title: "Thất Tình & Làm Bạn Anh Nhé - XuanKen",
+                    youtubeId: "gAmCQjWEY6I",
+                    thumbnail: "https://img.youtube.com/vi/gAmCQjWEY6I/maxresdefault.jpg",
+                    date: "2026-03-07",
+                },
+                {
+                    id: 1,
+                    title: "Ngày Em Vu Quy - XuanKen",
+                    youtubeId: "agU2wa-9JS0",
+                    thumbnail: "https://img.youtube.com/vi/agU2wa-9JS0/maxresdefault.jpg",
+                    date: "2026-03-05",
                 }
             ];
+
+            // ==================== HÀM SO SÁNH ĐỂ SẮP XẾP ====================
+            function sortVideosByDate(videos) {
+                return videos.sort((a, b) => {
+                    // So sánh ngày tháng, mới nhất lên đầu
+                    return new Date(b.date) - new Date(a.date);
+                });
+            }
+
+            // Sắp xếp video từ mới nhất đến cũ nhất
+            const sortedVideos = sortVideosByDate(allVideos);
+
+            // ==================== HÀM ĐỊNH DẠNG NGÀY THÁNG ====================
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+
+            // ==================== HÀM KIỂM TRA VIDEO MỚI ====================
+            function isNewVideo(dateString) {
+                const videoDate = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(now - videoDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays <= 30; // Video trong vòng 30 ngày là mới
+            }
 
             const ITEMS_PER_PAGE = 6;
             let currentPage = 1;
@@ -524,12 +606,11 @@
                 // Xóa loading spinner và tạo iframe mới
                 videoWrapper.innerHTML = '';
                 
-                // Tạo iframe YouTube với cấu hình đúng
+                // Tạo iframe YouTube
                 const iframe = document.createElement('iframe');
-                iframe.src = `https://www.youtube.com/embed/${videoData.youtubeId}?autoplay=1&rel=0&enablejsapi=1`;
-                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+                iframe.src = `https://www.youtube.com/embed/${videoData.youtubeId}?autoplay=1&rel=0`;
+                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
                 iframe.allowFullscreen = true;
-                iframe.referrerPolicy = "strict-origin-when-cross-origin";
                 
                 videoWrapper.appendChild(iframe);
                 
@@ -538,7 +619,7 @@
 
             // ==================== HÀM CẬP NHẬT TỔNG SỐ VIDEO ====================
             function updateTotalVideos() {
-                document.getElementById('totalVideos').innerText = allVideos.length;
+                document.getElementById('totalVideos').innerText = sortedVideos.length;
             }
 
             // ==================== HÀM HIỂN THỊ THÔNG BÁO ====================
@@ -563,8 +644,8 @@
             function renderPage(page) {
                 const start = (page - 1) * ITEMS_PER_PAGE;
                 const end = start + ITEMS_PER_PAGE;
-                const pageVideos = allVideos.slice(start, end);
-                const totalPages = Math.ceil(allVideos.length / ITEMS_PER_PAGE);
+                const pageVideos = sortedVideos.slice(start, end);
+                const totalPages = Math.ceil(sortedVideos.length / ITEMS_PER_PAGE);
 
                 const gridContainer = document.getElementById('videoGrid');
                 gridContainer.innerHTML = '';
@@ -576,11 +657,18 @@
                         const gridItem = document.createElement('div');
                         gridItem.className = 'grid-item';
                         
+                        // Kiểm tra và thêm badge "Mới" nếu video trong vòng 30 ngày
+                        const newVideo = isNewVideo(video.date);
+                        
                         gridItem.innerHTML = `
                             <div class="thumbnail">
                                 <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
                                 <div class="play-overlay">
                                     <i class="fas fa-play-circle"></i>
+                                </div>
+                                ${newVideo ? '<div class="new-badge"><i class="fas fa-star"></i> MỚI</div>' : ''}
+                                <div class="date-info">
+                                    <i class="fas fa-calendar-alt"></i> ${formatDate(video.date)}
                                 </div>
                             </div>
                             <div class="grid-info">
@@ -664,13 +752,6 @@
                 }
             });
 
-            // ==================== KIỂM TRA LỖI YOUTUBE ====================
-            window.onerror = function(msg, url, lineNo, columnNo, error) {
-                if (msg.includes('YouTube') || msg.includes('youtube')) {
-                    showToast('Có lỗi khi tải video. Vui lòng thử lại sau!', 'exclamation-triangle');
-                }
-            };
-
             // ==================== KHỞI TẠO ====================
             window.onload = function() {
                 // Cập nhật tổng số video
@@ -679,7 +760,7 @@
                 // Hiển thị trang đầu tiên
                 renderPage(1);
                 
-                showToast('🎬 Click vào video để xem trực tiếp', 'info-circle');
+                showToast('🎬 Video sắp xếp từ mới nhất đến cũ nhất', 'clock');
             };
         })();
     </script>
